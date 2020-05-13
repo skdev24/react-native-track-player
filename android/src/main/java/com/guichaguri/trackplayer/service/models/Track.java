@@ -16,7 +16,6 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.upstream.*;
-import com.google.android.exoplayer2.upstream.HttpDataSource.*;
 import com.google.android.exoplayer2.util.Util;
 import com.guichaguri.trackplayer.service.Utils;
 import com.guichaguri.trackplayer.service.player.LocalPlayback;
@@ -51,24 +50,13 @@ public class Track extends TrackMetadata {
     public String id;
     public Uri uri;
     public int resourceId;
-    public boolean isRemote;
 
     public TrackType type = TrackType.DEFAULT;
 
     public String contentType;
     public String userAgent;
 
-    public Uri artwork;
-
-    public String title;
-    public String artist;
-    public String album;
-    public String date;
-    public String genre;
-    public long duration;
     public Bundle originalItem;
-
-    public RatingCompat rating;
 
     public Map<String, String> headers;
 
@@ -81,11 +69,8 @@ public class Track extends TrackMetadata {
 
         if(resourceId == 0) {
             uri = Utils.getUri(context, bundle, "url");
-            String sURI = uri.toString();
-            isRemote = (sURI.startsWith("http://") || sURI.startsWith("https://")) && !sURI.contains("127.0.0.1");
         } else {
             uri = RawResourceDataSource.buildRawResourceUri(resourceId);
-            isRemote = false;
         }
 
         String trackType = bundle.getString("type", "default");
@@ -114,44 +99,20 @@ public class Track extends TrackMetadata {
         originalItem = bundle;
     }
 
+    @Override
     public void setMetadata(Context context, Bundle bundle, int ratingType) {
-        artwork = Utils.getUri(context, bundle, "artwork");
-
-        title = bundle.getString("title");
-        artist = bundle.getString("artist");
-        album = bundle.getString("album");
-        date = bundle.getString("date");
-        genre = bundle.getString("genre");
-        duration = Utils.toMillis(bundle.getDouble("duration", 0));
-
-        rating = Utils.getRating(bundle, "rating", ratingType);
+        super.setMetadata(context, bundle, ratingType);
 
         if (originalItem != null && originalItem != bundle)
             originalItem.putAll(bundle);
     }
 
+    @Override
     public MediaMetadataCompat.Builder toMediaMetadata() {
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        MediaMetadataCompat.Builder builder = super.toMediaMetadata();
 
-        builder.putString(METADATA_KEY_TITLE, title);
-        builder.putString(METADATA_KEY_ARTIST, artist);
-        builder.putString(METADATA_KEY_ALBUM, album);
-        builder.putString(METADATA_KEY_DATE, date);
-        builder.putString(METADATA_KEY_GENRE, genre);
         builder.putString(METADATA_KEY_MEDIA_URI, uri.toString());
         builder.putString(METADATA_KEY_MEDIA_ID, id);
-
-        if (duration > 0) {
-            builder.putLong(METADATA_KEY_DURATION, duration);
-        }
-
-        if (artwork != null) {
-            builder.putString(METADATA_KEY_ART_URI, artwork.toString());
-        }
-
-        if (rating != null) {
-            builder.putRating(METADATA_KEY_RATING, rating);
-        }
 
         return builder;
     }
@@ -235,41 +196,6 @@ public class Track extends TrackMetadata {
 
     private MediaSource createHlsSource(DataSource.Factory factory) {
         return new HlsMediaSource.Factory(factory)
-                .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy() {
-                    @Override
-                    public long getBlacklistDurationMsFor(
-                        int dataType,
-                        long loadDurationMs,
-                        IOException exception,
-                        int errorCount) {
-                        // if (exception instanceof HttpDataSourceException) {
-                        //     return (1 << Math.min(errorCount - 1, 10)) * 1000;
-                        // }
-                        // return super.getBlacklistDurationMsFor(dataType, loadDurationMs, exception, errorCount);
-                        return Math.max(Math.min(errorCount, 10) * 500, 500);
-                    }
-
-                    @Override
-                    public long getRetryDelayMsFor(
-                        int dataType,
-                        long loadDurationMs,
-                        IOException exception,
-                        int errorCount) {
-
-                        // if (
-                        //         exception instanceof HttpDataSourceException
-                        //     || (exception instanceof InvalidResponseCodeException && ((InvalidResponseCodeException) exception).responseCode == 500)) {
-                        //     return (1 << Math.min(errorCount - 1, 3)) * 1000;
-                        // }
-                        // return super.getBlacklistDurationMsFor(dataType, loadDurationMs, exception, errorCount);
-                        return Math.max(Math.min(errorCount, 10) * 500, 500);
-                    }
-
-                    @Override
-                    public int getMinimumLoadableRetryCount(int dataType) {
-                        return Integer.MAX_VALUE;
-                    }
-                })
                 .createMediaSource(uri);
     }
 
@@ -278,70 +204,4 @@ public class Track extends TrackMetadata {
                 .createMediaSource(uri);
     }
 
-    // Check update
-    private boolean equalsHeaders(Map<String, String> headers) {
-        if(this.headers == null && headers == null) {
-            return true;
-        }
-        if( (this.headers == null && headers != null) ||
-            (this.headers != null && headers == null)) {
-            return false;
-        }
-        return this.headers.equals(headers);
-    }
-
-    public boolean isTrack(Bundle bundle) {
-        return id.equals(bundle.getString("id", ""));
-    }
-
-    public boolean updated(Context context, Bundle bundle) {
-        String contentType = bundle.getString("contentType");
-        if(this.contentType == null && contentType != null) {
-            return true;
-        } else if(this.contentType != null) {
-            if(contentType == null) return true;
-            else if(!this.contentType.equals(contentType)) return true;
-        }
-
-        String userAgent = bundle.getString("userAgent");
-        if(this.userAgent == null && userAgent != null) {
-            return true;
-        } else if(this.userAgent != null) {
-            if(userAgent == null) return true;
-            else if(!this.userAgent.equals(userAgent)) return true;
-        }
-
-        int resource = Utils.getRawResourceId(context, bundle, "url");
-        if(resource == 0 && !uri.equals(Utils.getUri(context, bundle, "url"))) {
-            return true;
-        } else if(resource != 0 && !uri.equals(RawResourceDataSource.buildRawResourceUri(resource))) {
-            return true;
-        }
-
-        String trackType = bundle.getString("type", "default");
-        for(TrackType t : TrackType.values()) {
-            if(t.name.equalsIgnoreCase(trackType)) {
-                if(type != t) {
-                    return true;
-                }
-            }
-        }
-
-        Bundle httpHeaders = bundle.getBundle("headers");
-        if(httpHeaders != null) {
-            Map<String, String> auxHeaders = new HashMap<>();
-            for(String header : httpHeaders.keySet()) {
-                auxHeaders.put(header, httpHeaders.getString(header));
-            }
-
-            if(!equalsHeaders(auxHeaders)){
-                return true;
-            }
-
-        } else if(this.headers != null){
-            return true;
-        }
-
-        return false;
-    }
 }
