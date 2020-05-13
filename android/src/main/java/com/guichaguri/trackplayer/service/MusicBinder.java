@@ -46,6 +46,7 @@ public class MusicBinder extends Binder {
     public void updateOptions(Bundle bundle) {
         manager.setStopWithApp(bundle.getBoolean("stopWithApp", false));
         manager.setAlwaysPauseOnInterruption(bundle.getBoolean("alwaysPauseOnInterruption", false));
+        manager.setDuckingVolumeMultiplier(bundle.getFloat("duckingVolumeMultiplier", 0.5F));
         manager.getMetadata().updateOptions(bundle);
     }
 
