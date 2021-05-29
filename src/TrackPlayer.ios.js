@@ -9,7 +9,7 @@ import {
   State,
   TrackMetadataBase,
   NowPlayingMetadata,
-} from './interfaces'
+} from 'react-native-track-player/lib/interfaces'
 
 const { TrackPlayerModule: TrackPlayer } = NativeModules
 const emitter = Platform.OS !== 'android' ? new NativeEventEmitter(TrackPlayer) : DeviceEventEmitter
@@ -195,8 +195,8 @@ async function getState() {
   return TrackPlayer.getState()
 }
 
-export * from './hooks'
-export * from './interfaces'
+export * from 'react-native-track-player/lib/hooks'
+export * from 'react-native-track-player/lib/interfaces'
 
 export default {
   // MARK: - General API
