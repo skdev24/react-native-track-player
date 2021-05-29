@@ -25,16 +25,15 @@ export const usePlaybackState = () => {
   return state
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Handler = (payload: { type: Event; [key: string]: any }) => void
+
 
 /**
  * Attaches a handler to the given TrackPlayer events and performs cleanup on unmount
  * @param events - TrackPlayer events to subscribe to
  * @param handler - callback invoked when the event fires
  */
-export const useTrackPlayerEvents = (events: Event[], handler: Handler) => {
-  const savedHandler = useRef<Handler>()
+export const useTrackPlayerEvents = (events, handler) => {
+  const savedHandler = useRef()
 
   useEffect(() => {
     savedHandler.current = handler
@@ -56,7 +55,7 @@ export const useTrackPlayerEvents = (events: Event[], handler: Handler) => {
 
     const subs = events.map(event =>
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      TrackPlayer.addEventListener(event, payload => savedHandler.current!({ ...payload, type: event })),
+      TrackPlayer.addEventListener(event, payload => savedHandler.current({ ...payload, type: event })),
     )
 
     return () => {
@@ -69,7 +68,7 @@ export const useTrackPlayerEvents = (events: Event[], handler: Handler) => {
  * Poll for track progress for the given interval (in miliseconds)
  * @param interval - ms interval
  */
-export function useProgress(updateInterval?: number) {
+export function useProgress(updateInterval) {
   const [state, setState] = useState({ position: 0, duration: 0, buffered: 0 })
   const playerState = usePlaybackState()
 

@@ -16,14 +16,14 @@ const emitter = Platform.OS !== 'android' ? new NativeEventEmitter(TrackPlayer) 
 
 // MARK: - Helpers
 
-function resolveImportedPath(path?: number | string) {
+function resolveImportedPath(path) {
   if (!path) return undefined
   return resolveAssetSource(path) || path
 }
 
 // MARK: - General API
 
-async function setupPlayer(options: PlayerOptions = {}): Promise<void> {
+async function setupPlayer(options = {}){
   return TrackPlayer.setupPlayer(options || {})
 }
 
@@ -31,8 +31,7 @@ function destroy() {
   return TrackPlayer.destroy()
 }
 
-type ServiceHandler = () => Promise<void>
-function registerPlaybackService(factory: () => ServiceHandler) {
+function registerPlaybackService(factory) {
   if (Platform.OS === 'android') {
     // Registers the headless task
     AppRegistry.registerHeadlessTask('TrackPlayer', factory)
@@ -43,13 +42,13 @@ function registerPlaybackService(factory: () => ServiceHandler) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function addEventListener(event: Event, listener: (data: any) => void) {
+function addEventListener(event, listener) {
   return emitter.addListener(event, listener)
 }
 
 // MARK: - Queue API
 
-async function add(tracks: Track | Track[], insertBeforeId?: string): Promise<void> {
+async function add(tracks, insertBeforeId) {
   // Clone the array before modifying it
   if (Array.isArray(tracks)) {
     tracks = [...tracks]
@@ -74,7 +73,7 @@ async function add(tracks: Track | Track[], insertBeforeId?: string): Promise<vo
   return TrackPlayer.add(tracks, insertBeforeId)
 }
 
-async function remove(tracks: string | string[]): Promise<void> {
+async function remove(tracks) {
   if (!Array.isArray(tracks)) {
     tracks = [tracks]
   }
@@ -82,25 +81,25 @@ async function remove(tracks: string | string[]): Promise<void> {
   return TrackPlayer.remove(tracks)
 }
 
-async function removeUpcomingTracks(): Promise<void> {
+async function removeUpcomingTracks() {
   return TrackPlayer.removeUpcomingTracks()
 }
 
-async function skip(trackId: string): Promise<void> {
+async function skip(trackId) {
   return TrackPlayer.skip(trackId)
 }
 
-async function skipToNext(): Promise<void> {
+async function skipToNext() {
   return TrackPlayer.skipToNext()
 }
 
-async function skipToPrevious(): Promise<void> {
+async function skipToPrevious() {
   return TrackPlayer.skipToPrevious()
 }
 
 // MARK: - Control Center / Notifications API
 
-async function updateOptions(options: MetadataOptions = {}): Promise<void> {
+async function updateOptions(options = {}) {
   options = { ...options }
 
   // Resolve the asset for each icon
@@ -116,83 +115,83 @@ async function updateOptions(options: MetadataOptions = {}): Promise<void> {
   return TrackPlayer.updateOptions(options)
 }
 
-async function updateMetadataForTrack(trackId: string, metadata: TrackMetadataBase): Promise<void> {
+async function updateMetadataForTrack(trackId, metadata) {
   return TrackPlayer.updateMetadataForTrack(trackId, metadata)
 }
 
-function clearNowPlayingMetadata(): Promise<void> {
+function clearNowPlayingMetadata() {
   return TrackPlayer.clearNowPlayingMetadata()
 }
 
-function updateNowPlayingMetadata(metadata: NowPlayingMetadata): Promise<void> {
+function updateNowPlayingMetadata(metadata) {
   return TrackPlayer.updateNowPlayingMetadata(metadata)
 }
 
 // MARK: - Playback API
 
-async function reset(): Promise<void> {
+async function reset() {
   return TrackPlayer.reset()
 }
 
-async function play(): Promise<void> {
+async function play() {
   return TrackPlayer.play()
 }
 
-async function pause(): Promise<void> {
+async function pause() {
   return TrackPlayer.pause()
 }
 
-async function stop(): Promise<void> {
+async function stop() {
   return TrackPlayer.stop()
 }
 
-async function seekTo(position: number): Promise<void> {
+async function seekTo(position) {
   return TrackPlayer.seekTo(position)
 }
 
-async function setVolume(level: number): Promise<void> {
+async function setVolume(level) {
   return TrackPlayer.setVolume(level)
 }
 
-async function setRate(rate: number): Promise<void> {
+async function setRate(rate) {
   return TrackPlayer.setRate(rate)
 }
 
 // MARK: - Getters
 
-async function getVolume(): Promise<number> {
+async function getVolume() {
   return TrackPlayer.getVolume()
 }
 
-async function getRate(): Promise<number> {
+async function getRate() {
   return TrackPlayer.getRate()
 }
 
-async function getTrack(trackId: string): Promise<Track> {
+async function getTrack(trackId) {
   return TrackPlayer.getTrack(trackId)
 }
 
-async function getQueue(): Promise<Track[]> {
+async function getQueue() {
   return TrackPlayer.getQueue()
 }
 
-async function getCurrentTrack(): Promise<string> {
+async function getCurrentTrack() {
   return TrackPlayer.getCurrentTrack()
 }
 
-async function getDuration(): Promise<number> {
+async function getDuration() {
   return TrackPlayer.getDuration()
 }
 
-async function getBufferedPosition(): Promise<number> {
+async function getBufferedPosition() {
   return TrackPlayer.getBufferedPosition()
 }
 
-async function getPosition(): Promise<number> {
+async function getPosition() {
   return TrackPlayer.getPosition()
 }
 
-async function getState(): Promise<State> {
+async function getState() {
   return TrackPlayer.getState()
 }
 
