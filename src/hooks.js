@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import TrackPlayer, { State, Event } from './index'
+import TrackPlayer, { State, Event } from './TrackPlayer'
 
 /** Get current playback state and subsequent updatates  */
 export const usePlaybackState = () => {

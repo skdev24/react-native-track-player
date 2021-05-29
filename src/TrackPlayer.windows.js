@@ -195,8 +195,8 @@ async function getState() {
   return TrackPlayer.getState()
 }
 
-export * from 'react-native-track-player/lib/hooks'
-export * from 'react-native-track-player/lib/interfaces'
+export * from './hooks'
+export * from './interfaces'
 
 export default {
   // MARK: - General API

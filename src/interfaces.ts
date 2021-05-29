@@ -90,7 +90,6 @@ export enum Capability {
 export type ResourceObject = number
 
 export interface MetadataOptions {
-  ratingType?: RatingType
   jumpInterval?: number
   likeOptions?: FeedbackOptions
   dislikeOptions?: FeedbackOptions
